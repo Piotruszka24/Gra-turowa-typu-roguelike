@@ -5,7 +5,7 @@
 	#define en '\n'
 	
 	const int WYSOKOSC_ = 20;
-	const int SZEROKOSC_ = 50;
+	const int SZEROKOSC_ = 75;
 	
 	char plansza[WYSOKOSC_][SZEROKOSC_]; //PLANSZA[Y][X]
 	
@@ -42,6 +42,20 @@
 				return false;
 			}
 			
+			void rysowanie_korytarza(const Pokoj& drugi){
+				int x_podm = this->srodek_x;
+				int y_podm = this->srodek_y;
+				while(x_podm != drugi.srodek_x){
+					plansza[y_podm][x_podm] = '.';
+					if(x_podm > drugi.srodek_x) x_podm--;
+					else x_podm++;
+				}
+				while(y_podm != drugi.srodek_y){
+					plansza[y_podm][x_podm] = '.';
+					if(y_podm > drugi.srodek_y) y_podm--;
+					else y_podm++;
+				}
+			}
 		
 		private:
 			int x;
@@ -81,8 +95,8 @@
 			for(; ilosc_prob < 100; ilosc_prob++){
 				int x = rand() % SZEROKOSC_;
 				int y = rand() % WYSOKOSC_;
-				int szer = rand() % 8 + 4;
-				int wys = rand() % 8 + 4;
+				int szer = rand() % 10 + 6;
+				int wys = rand() % 6 + 4;
 				Pokoj nowy(x, y, szer, wys);
 				
 				bool czy_pokoj_moze_powstac = true;
@@ -118,4 +132,19 @@
 			for(int j=0; j<SZEROKOSC_; j++) std::cout << plansza[i][j];
 			std::cout << en;
 		}
+		
+		std::cout << en;
+		
+		//rysowanie z pokoojami i korytarzami
+		
+		for(size_t m = 0; m < lista_pokoi.size() - 1; m++) {
+			lista_pokoi[m].rysowanie_korytarza(lista_pokoi[m+1]);
+		}
+		
+		for(int i=0; i<WYSOKOSC_; i++){
+			for(int j=0; j<SZEROKOSC_; j++) std::cout << plansza[i][j];
+			std::cout << en;
+		}
+		
+		
 	}
