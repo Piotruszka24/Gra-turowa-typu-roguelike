@@ -52,11 +52,93 @@ class Player{
 			return y;
 		}
 		
+		void przyjmij_obrazenia(int ile){
+			hp -=ile;
+		}
+		
 	private:
 		int x;
 		int y;
 		int hp;
 };
+
+class Przeciwnik{
+	protected:
+		int hp;
+		int x;
+		int y;
+	public:
+		virtual void zaatakuj(Player& gracz);
+		virtual bool wykonaj_ruch_przeciwnik(int x_gracz, int y_gracza);
+		virtual void pojaw_sie_na_mapie();
+		virtual void zmien_pozycje(int x_nowe, int y_nowe, int x_stare, int y_stare);
+		std::string dostan_obrazenia(int ilosc){
+			hp -= ilosc;
+			if(hp <= 0) return "Przeciwnik zabity\n";
+			else return "Przeciwnik trafiony\n";
+		}
+		
+		bool czy_moze_zaatakowac(){
+			bool czy = false;
+			for(int i = this->x -1; i <= this->x +1; i++){
+				for(int j = this->y - 1; j <= this-> y + 1; j++){
+					if(plansza[j][i] == '@') czy = true;
+					break;
+				}
+			}
+			
+			return czy;
+		}
+
+};
+
+class Zombie : public Przeciwnik {
+	private:
+		int ilosc_zadawanych_obrazen{5};
+	public:
+		void zaatakuj(Player& gracz) override{
+			if(this->czy_moze_zaatakowac()) gracz.przyjmij_obrazenia(ilosc_zadawanych_obrazen);
+		}
+		
+		bool wykonaj_ruch_przeciwnik(int x_gracza, int y_gracza) override{
+			if(x_gracza > this->x && plansza[this->y][this->x + 1] == '.'){
+				zmien_pozycje(this->x + 1, this->y, this->x, this->y);
+				return true;
+			}
+			else if(x_gracza < this->x && plansza[this->y][this->x - 1] == '.'){
+				zmien_pozycje(this->x - 1, this->y, this->x, this->y);
+				return true;
+			}
+			else if(y_gracza > this->y && plansza[this->y + 1][this->x] == '.'){
+				zmien_pozycje(this->x, this->y + 1, this->x, this->y);
+				return true;
+			}
+			else if(y_gracza < this->y && plansza[this->y - 1][this->x] == '.'){
+				zmien_pozycje(this->x, this->y - 1, this->x, this->y);
+				return true;
+			}
+			return false;
+		}
+		
+		void zmien_pozycje(int x_nowe, int y_nowe, int x_stare, int y_stare) override{
+			plansza[y_stare][x_stare] = '.';
+			plansza[y_nowe][x_nowe] = 'Z';
+		}
+		
+		void pojaw_sie_na_mapie() override{
+			int max_prob = 100;
+			for(int i=0; i < max_prob; i++){
+				int x_prz = rand() % 20 + 1;
+				int y_prz = rand() % 6 + 1;
+				
+				if(plansza[y_prz][x_prz] == '.'){
+					plansza[y_prz][x_prz] = 'Z';
+					break;
+				}
+			}
+		}
+};
+
 
 int main(){
 		
@@ -112,7 +194,7 @@ int main(){
             case 'q': gra_trwa = false; break;
         }
         
-        if(gracz.czy_moze_sie_przemiescic(x_nowe, y_nowe)) { //tu cos nie dziala
+        if(gracz.czy_moze_sie_przemiescic(x_nowe, y_nowe)) { 
 			gracz.zmiana_pozycji_gracza(x_nowe, y_nowe);
         	gracz.usuwanie_starej_pozycji_gracza(x_stare, y_stare);
         	gracz.narysuj_polozenie_gracza();
