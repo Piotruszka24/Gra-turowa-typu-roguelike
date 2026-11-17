@@ -139,6 +139,38 @@ class Zombie : public Przeciwnik {
 		}
 };
 
+void tura_gracza(Player& gracz, bool& gra_trwa){
+	char klawisz = _getch(); 
+	system("cls");
+
+	int x_nowe = gracz.wez_szerokosc();
+	int y_nowe = gracz.wez_wysokosc();
+	int x_stare = x_nowe;
+	int y_stare = y_nowe;
+
+	switch (klawisz) {
+			
+		case 'w': y_nowe--; break; // Góra
+        case 's': y_nowe++; break; // Dół
+        case 'a': x_nowe--; break; // Lewo
+        case 'd': x_nowe++; break; // Prawo
+        case 'q': gra_trwa = false; break;
+    }
+        
+    if(gracz.czy_moze_sie_przemiescic(x_nowe, y_nowe)) { 
+		gracz.zmiana_pozycji_gracza(x_nowe, y_nowe);
+       	gracz.usuwanie_starej_pozycji_gracza(x_stare, y_stare);
+       	gracz.narysuj_polozenie_gracza();
+    }
+}
+
+void rysowanie_planszy(){
+	for(int i=0; i<WYSOKOSC_; i++){
+		for(int j=0; j<SZEROKOSC_; j++) 
+			std::cout << plansza[i][j];
+		std::cout << en;
+	}
+}
 
 int main(){
 		
@@ -177,35 +209,8 @@ int main(){
 	bool gra_trwa = true;
 	
 	while(gra_trwa){
-		char klawisz = _getch(); 
-		system("cls");
-
-		int x_nowe = gracz.wez_szerokosc();
-		int y_nowe = gracz.wez_wysokosc();
-		int x_stare = x_nowe;
-		int y_stare = y_nowe;
-
-        switch (klawisz) {
-			
-			case 'w': y_nowe--; break; // Góra
-            case 's': y_nowe++; break; // Dół
-            case 'a': x_nowe--; break; // Lewo
-            case 'd': x_nowe++; break; // Prawo
-            case 'q': gra_trwa = false; break;
-        }
-        
-        if(gracz.czy_moze_sie_przemiescic(x_nowe, y_nowe)) { 
-			gracz.zmiana_pozycji_gracza(x_nowe, y_nowe);
-        	gracz.usuwanie_starej_pozycji_gracza(x_stare, y_stare);
-        	gracz.narysuj_polozenie_gracza();
-    	}
-        
-        for(int i=0; i<WYSOKOSC_; i++){
-			for(int j=0; j<SZEROKOSC_; j++) 
-				std::cout << plansza[i][j];
-			std::cout << en;
-		}
-        
+		tura_gracza(gracz, gra_trwa);
+        rysowanie_planszy();
 	}
 	
 }
