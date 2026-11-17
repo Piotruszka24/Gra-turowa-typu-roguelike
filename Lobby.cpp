@@ -64,14 +64,15 @@ class Player{
 
 class Przeciwnik{
 	protected:
-		int hp;
 		int x;
 		int y;
+		int hp;
 	public:
-		virtual void zaatakuj(Player& gracz);
-		virtual bool wykonaj_ruch_przeciwnik(int x_gracz, int y_gracza);
-		virtual void pojaw_sie_na_mapie();
-		virtual void zmien_pozycje(int x_nowe, int y_nowe, int x_stare, int y_stare);
+		Przeciwnik(int x_p, int y_p, int zycie) : x(x_p), y(y_p), hp(zycie) {;}
+		virtual void zaatakuj(Player& gracz) = 0;
+		virtual bool wykonaj_ruch_przeciwnik(int x_gracz, int y_gracza) = 0;
+		virtual void pojaw_sie_na_mapie(int x_prz, int y_prz) = 0;
+		virtual void zmien_pozycje(int x_nowe, int y_nowe, int x_stare, int y_stare) = 0;
 		std::string dostan_obrazenia(int ilosc){
 			hp -= ilosc;
 			if(hp <= 0) return "Przeciwnik zabity\n";
@@ -79,15 +80,12 @@ class Przeciwnik{
 		}
 		
 		bool czy_moze_zaatakowac(){
-			bool czy = false;
 			for(int i = this->x -1; i <= this->x +1; i++){
 				for(int j = this->y - 1; j <= this-> y + 1; j++){
-					if(plansza[j][i] == '@') czy = true;
-					break;
+					if(plansza[j][i] == '@') return true;
 				}
 			}
-			
-			return czy;
+			return false;
 		}
 
 };
@@ -96,6 +94,7 @@ class Zombie : public Przeciwnik {
 	private:
 		int ilosc_zadawanych_obrazen{5};
 	public:
+		Zombie(int x_p, int y_p, int zycie) : Przeciwnik(x_p, y_p, zycie){;}
 		void zaatakuj(Player& gracz) override{
 			if(this->czy_moze_zaatakowac()) gracz.przyjmij_obrazenia(ilosc_zadawanych_obrazen);
 		}
@@ -125,17 +124,8 @@ class Zombie : public Przeciwnik {
 			plansza[y_nowe][x_nowe] = 'Z';
 		}
 		
-		void pojaw_sie_na_mapie() override{
-			int max_prob = 100;
-			for(int i=0; i < max_prob; i++){
-				int x_prz = rand() % 20 + 1;
-				int y_prz = rand() % 6 + 1;
-				
-				if(plansza[y_prz][x_prz] == '.'){
-					plansza[y_prz][x_prz] = 'Z';
-					break;
-				}
-			}
+		void pojaw_sie_na_mapie(int x_prz, int y_prz) override{
+			plansza[y_prz][x_prz] = 'Z';		
 		}
 };
 
@@ -164,6 +154,10 @@ void tura_gracza(Player& gracz, bool& gra_trwa){
     }
 }
 
+void tura_przeciwnikow(){
+	;
+}
+
 void rysowanie_planszy(){
 	for(int i=0; i<WYSOKOSC_; i++){
 		for(int j=0; j<SZEROKOSC_; j++) 
@@ -189,13 +183,27 @@ int main(){
 	}
 	
 	
-	//polozenie gracza
+	//polozenie gracza i pojawiwenie sie go na mapie
 	
 	int x_gr = rand() % 20 + 1;
 	int y_gr = rand() % 6 + 1;
 	
 	Player gracz(x_gr, y_gr);
 	gracz.narysuj_polozenie_gracza();
+	
+	//pojawienie sie potwora na mapie
+	
+	for(int i=0; i < 100; i++){
+		int x_prz = rand() % 20 + 1;
+		int y_prz = rand() % 6 + 1;
+			
+		if(plansza[y_prz][x_prz] == '.'){
+			Zombie p1(x_prz, y_prz, 20);
+			p1.pojaw_sie_na_mapie(x_prz, y_prz);
+			break;
+		}
+	}
+	
 	
 	//rysowanie planszy
 	
